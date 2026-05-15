@@ -196,30 +196,36 @@ export default function PredictPage() {
     return;
   }
 
-  for (const match of matches) {
-    const prediction = tips[match.id];
+  const now = new Date();
 
-    if (!prediction) continue;
-
-    const homeScore =
-      prediction.home.trim() === "" ? null : Number(prediction.home);
-
-    const awayScore =
-      prediction.away.trim() === "" ? null : Number(prediction.away);
-
-    const saved = await saveUserPrediction({
-      match_id: match.id,
-      user_id: userId,
-      home_score: Number.isNaN(homeScore) ? null : homeScore,
-      away_score: Number.isNaN(awayScore) ? null : awayScore,
-    });
-
-    if (!saved) {
-      setStatus("Některý tip zápasu se nepodařilo uložit.");
-      setSaving(false);
-      return;
-    }
+for (const match of matches) {
+  if (match.kickoff_at && new Date(match.kickoff_at) <= now) {
+    continue;
   }
+
+  const prediction = tips[match.id];
+
+  if (!prediction) continue;
+
+  const homeScore =
+    prediction.home.trim() === "" ? null : Number(prediction.home);
+
+  const awayScore =
+    prediction.away.trim() === "" ? null : Number(prediction.away);
+
+  const saved = await saveUserPrediction({
+    match_id: match.id,
+    user_id: userId,
+    home_score: Number.isNaN(homeScore) ? null : homeScore,
+    away_score: Number.isNaN(awayScore) ? null : awayScore,
+  });
+
+  if (!saved) {
+    setStatus("Některý tip zápasu se nepodařilo uložit.");
+    setSaving(false);
+    return;
+  }
+}
 
   if (top3Enabled && hasFullPodium) {
     const savedPodium = await savePodiumPrediction({
