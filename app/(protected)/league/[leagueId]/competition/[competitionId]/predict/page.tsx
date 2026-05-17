@@ -108,15 +108,22 @@ export default function PredictPage() {
 
       const teamMap = Object.fromEntries(fetchedTeams.map((team) => [team.id, team.name]));
 
-      setMatches(
-        rawMatches.map((match) => ({
-          id: match.id,
-          stage: match.stage || "Další",
-          kickoff_at: match.kickoff_at,
-          homeTeamName: teamMap[match.home_team_id ?? ""] ?? "TBD",
-          awayTeamName: teamMap[match.away_team_id ?? ""] ?? "TBD",
-        }))
-      );
+      const now = new Date();
+
+setMatches(
+  rawMatches
+    .filter(
+      (match) =>
+        !match.kickoff_at || new Date(match.kickoff_at) > now
+    )
+    .map((match) => ({
+      id: match.id,
+      stage: match.stage || "Další",
+      kickoff_at: match.kickoff_at,
+      homeTeamName: teamMap[match.home_team_id ?? ""] ?? "TBD",
+      awayTeamName: teamMap[match.away_team_id ?? ""] ?? "TBD",
+    }))
+);
 
       const predictions = await getUserPredictions(userId, competitionId);
 
