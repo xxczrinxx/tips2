@@ -423,18 +423,8 @@ export default function GridPage() {
             Načítám data...
           </div>
         ) : (
-          <div className="mt-6 overflow-x-auto">
+          <div className="mt-6 max-h-[75vh] overflow-auto">
             <table className="table-fixed border-collapse text-sm">
-              <colgroup>
-                <col className="w-[15ch]" />
-                <col className="w-[1ch]" />
-                <col className="w-[15ch]" />
-                <col className="w-[5ch]" />
-                {players.map((player) => (
-                  <col key={player.user_id} className="w-[10ch]" />
-                ))}
-              </colgroup>
-
               <thead>
                 <tr className="border-b border-slate-200">
                   <th className="sticky top-0 z-10 w-[15ch] bg-white px-1 py-2 text-left" />
@@ -448,16 +438,16 @@ export default function GridPage() {
                   {players.map((player) => (
                     <th
                       key={player.user_id}
-                      className="sticky top-0 z-10 w-[10ch] bg-white px-0 py-2 text-center align-bottom"
+                      className="sticky top-0 z-10 w-[7ch] bg-white px-1 py-2 text-center align-bottom"
                     >
-                      <div className="mx-auto w-[10ch] truncate text-center font-semibold text-slate-900">
+                      <div className="w-[7ch] truncate text-center font-semibold text-slate-900">
                         {shortText(
                           player.display_name,
                           10
                         )}
                       </div>
 
-                      <div className="mx-auto w-[10ch] text-center font-semibold text-slate-900">
+                      <div className="w-[7ch] text-center font-semibold text-slate-900">
                         <span className="text-xl">
                           {player.points}
                         </span>{" "}
@@ -479,7 +469,7 @@ export default function GridPage() {
                     TOP 3
                   </td>
 
-                  <td className="w-[5ch] border-b border-slate-200 px-1 py-3 align-top text-center">
+                  <td className="border-b border-slate-200 px-1 py-3 align-top">
                     <div className="space-y-1 text-xs font-semibold text-slate-900">
                       <div>
                         1. {teamMap[realPodium?.first_team_id ?? ""] ?? "—"}
@@ -505,17 +495,17 @@ export default function GridPage() {
                     return (
                       <td
                         key={player.user_id}
-                        className="w-[10ch] border-b border-slate-200 px-0 py-2 align-top text-center"
+                        className="border-b border-slate-200 px-1 py-2 align-top"
                       >
-                        <div className="mx-auto w-[10ch] space-y-1 text-xs">
+                        <div className="space-y-1 text-xs">
                           {podiumCells.map((cell, index) => (
                             <div
                               key={`${player.user_id}-${index}`}
-                              className={`w-[10ch] rounded px-1 py-1 text-center font-semibold ${podiumClass(
+                              className={`rounded px-2 py-1 font-semibold ${podiumClass(
                                 cell.status
                               )}`}
                             >
-                              {teamMap[cell.teamId ?? ""] ?? "—"}
+                              {index + 1}. {teamMap[cell.teamId ?? ""] ?? "—"}
                             </div>
                           ))}
                         </div>
@@ -586,10 +576,10 @@ export default function GridPage() {
                             return (
                               <td
                                 key={player.user_id}
-                                className="w-[10ch] px-0 py-1 text-center"
+                                className="w-[7ch] px-1 py-1"
                               >
                                 <div
-                                  className={`mx-auto w-[10ch] rounded px-1 py-1 text-center text-xs font-semibold ${cellClass(
+                                  className={`w-[7ch] rounded px-1 py-1 text-center text-xs font-semibold ${cellClass(
                                     cell
                                   )}`}
                                 >
