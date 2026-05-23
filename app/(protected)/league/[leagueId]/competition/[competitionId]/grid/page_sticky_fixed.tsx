@@ -423,32 +423,32 @@ export default function GridPage() {
             Načítám data...
           </div>
         ) : (
-          <div className="mt-6 overflow-x-auto">
+          <div className="mt-6 max-h-[calc(100vh-220px)] overflow-auto">
             <table className="table-fixed border-collapse text-sm">
               <colgroup>
-                <col className="w-[15ch]" />
+                <col className="w-[14ch]" />
                 <col className="w-[1ch]" />
-                <col className="w-[15ch]" />
+                <col className="w-[14ch]" />
                 <col className="w-[5ch]" />
                 {players.map((player) => (
                   <col key={player.user_id} className="w-[10ch]" />
                 ))}
               </colgroup>
 
-              <thead>
+              <thead className="sticky top-0 z-30 bg-white">
                 <tr className="border-b border-slate-200">
-                  <th className="sticky top-0 z-10 w-[15ch] bg-white px-1 py-2 text-left" />
+                  <th className="sticky top-0 z-30 w-[14ch] bg-white px-0 py-2 text-left shadow-sm" />
 
-                  <th className="sticky top-0 z-10 w-[1ch] bg-white px-0 py-2 text-center" />
+                  <th className="sticky top-0 z-30 w-[1ch] bg-white px-0 py-2 text-center shadow-sm" />
 
-                  <th className="sticky top-0 z-10 w-[15ch] bg-white px-1 py-2 text-left" />
+                  <th className="sticky top-0 z-30 w-[14ch] bg-white px-0 py-2 text-left shadow-sm" />
 
-                  <th className="sticky top-0 z-10 w-[5ch] bg-white px-1 py-2 text-center" />
+                  <th className="sticky top-0 z-30 w-[5ch] bg-white px-0 py-2 text-center shadow-sm" />
 
                   {players.map((player) => (
                     <th
                       key={player.user_id}
-                      className="sticky top-0 z-10 w-[10ch] bg-white px-0 py-2 text-center align-bottom"
+                      className="sticky top-0 z-30 w-[10ch] bg-white px-0 py-2 text-center align-bottom shadow-sm"
                     >
                       <div className="mx-auto w-[10ch] truncate text-center font-semibold text-slate-900">
                         {shortText(
@@ -479,7 +479,7 @@ export default function GridPage() {
                     TOP 3
                   </td>
 
-                  <td className="w-[5ch] border-b border-slate-200 px-1 py-3 align-top text-center">
+                  <td className="w-[5ch] border-b border-slate-200 px-0 py-3 align-top text-center">
                     <div className="space-y-1 text-xs font-semibold text-slate-900">
                       <div>
                         1. {teamMap[realPodium?.first_team_id ?? ""] ?? "—"}
@@ -543,8 +543,8 @@ export default function GridPage() {
                           key={match.id}
                           className="border-b border-slate-100"
                         >
-                          <td className="w-[15ch] px-1 py-1 font-semibold text-slate-900">
-                            <div className="w-[15ch] whitespace-nowrap">
+                          <td className="w-[14ch] px-0 py-1 font-semibold text-slate-900">
+                            <div className="w-[14ch] whitespace-nowrap">
                               {match.homeTeam}
                             </div>
                           </td>
@@ -553,13 +553,13 @@ export default function GridPage() {
                             :
                           </td>
 
-                          <td className="w-[15ch] px-1 py-1 font-semibold text-slate-900">
-                            <div className="w-[15ch] whitespace-nowrap">
+                          <td className="w-[14ch] px-0 py-1 font-semibold text-slate-900">
+                            <div className="w-[14ch] whitespace-nowrap">
                               {match.awayTeam}
                             </div>
                           </td>
 
-                          <td className="w-[5ch] px-1 py-1 text-center font-semibold text-slate-700">
+                          <td className="w-[5ch] px-0 py-1 text-center font-semibold text-slate-700">
                             <span className="inline-grid grid-cols-[2ch_1ch_2ch]">
                               <span>
                                 {match.homeScore === null
