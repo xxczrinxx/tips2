@@ -409,7 +409,7 @@ export default function AdminResultsPage() {
                                 key={match.id}
                                 className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
                               >
-                                <div className="grid gap-3 lg:grid-cols-[36px_140px_140px_72px] lg:items-center">
+                                <div className="grid gap-3 lg:grid-cols-[55px_140px_140px_72px] lg:items-center">
                                   <div className="text-sm text-slate-500">
                                     {formatMatchTime(match.kickoff_at)}
                                   </div>
@@ -454,8 +454,8 @@ export default function AdminResultsPage() {
 
                                   <div className="grid grid-cols-[32px_auto_32px] items-center gap-1">
                                     <input
-                                      type="text"
-                                      inputMode="numeric"
+                                      type="number"
+                                      min="0"
                                       placeholder="D"
                                       value={match.home_score}
                                       onChange={(e) =>
@@ -473,8 +473,8 @@ export default function AdminResultsPage() {
                                     </span>
 
                                     <input
-                                      type="text"
-                                      inputMode="numeric"
+                                      type="number"
+                                      min="0"
                                       placeholder="H"
                                       value={match.away_score}
                                       onChange={(e) =>
