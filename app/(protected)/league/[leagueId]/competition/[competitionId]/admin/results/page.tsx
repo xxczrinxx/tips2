@@ -373,7 +373,7 @@ export default function AdminResultsPage() {
                               [position]: e.target.value,
                             }));
                           }}
-                          className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none transition focus:border-slate-900"
+                          className="mt-2 w-[140px] rounded-2xl border border-slate-300 bg-white px-3 py-3 text-slate-900 outline-none transition focus:border-slate-900"
                         >
                           <option value="">Vyberte tým</option>
 
@@ -407,9 +407,9 @@ export default function AdminResultsPage() {
                             {dateMatches.map((match) => (
                               <div
                                 key={match.id}
-                                className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
+                                className="w-fit rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
                               >
-                                <div className="grid gap-3 lg:grid-cols-[36px_140px_140px_72px] lg:items-center">
+                                <div className="grid grid-cols-[36px_140px_140px_72px] items-center gap-3">
                                   <div className="text-sm text-slate-500">
                                     {formatMatchTime(match.kickoff_at)}
                                   </div>
@@ -423,7 +423,7 @@ export default function AdminResultsPage() {
                                         e.target.value,
                                       )
                                     }
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none"
+                                    className="w-[140px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none"
                                   >
                                     <option value="">Domácí tým</option>
                                     {teams.map((team) => (
@@ -442,7 +442,7 @@ export default function AdminResultsPage() {
                                         e.target.value,
                                       )
                                     }
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none"
+                                    className="w-[140px] rounded-xl border border-slate-300 bg-white px-3 py-2 text-slate-900 outline-none"
                                   >
                                     <option value="">Hostující tým</option>
                                     {teams.map((team) => (
@@ -465,7 +465,7 @@ export default function AdminResultsPage() {
                                           e.target.value,
                                         )
                                       }
-                                      className="w-full rounded-xl border border-slate-300 bg-white px-2 py-2 text-center text-slate-900 outline-none"
+                                      className="w-[32px] rounded-xl border border-slate-300 bg-white px-2 py-2 text-center text-slate-900 outline-none"
                                     />
 
                                     <span className="font-semibold text-slate-500">
@@ -484,7 +484,7 @@ export default function AdminResultsPage() {
                                           e.target.value,
                                         )
                                       }
-                                      className="w-full rounded-xl border border-slate-300 bg-white px-2 py-2 text-center text-slate-900 outline-none"
+                                      className="w-[32px] rounded-xl border border-slate-300 bg-white px-2 py-2 text-center text-slate-900 outline-none"
                                     />
                                   </div>
                                 </div>
