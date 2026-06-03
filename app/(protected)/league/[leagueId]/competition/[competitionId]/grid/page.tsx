@@ -437,9 +437,7 @@ export default function GridPage() {
 
               <thead className="sticky top-0 z-30 bg-white">
                 <tr className="border-b border-slate-200">
-                  <th className="sticky top-0 z-30 w-[14ch] bg-white px-0 py-2 text-left shadow-sm" />
-
-                  <th className="sticky top-0 z-30 w-[1ch] bg-white px-0 py-2 text-center shadow-sm" />
+                  <th colSpan={2} className="sticky top-0 z-30 w-[14ch] bg-white px-0 py-2 text-left shadow-sm" />
 
                   <th className="sticky top-0 z-30 w-[14ch] bg-white px-0 py-2 text-left shadow-sm" />
 
