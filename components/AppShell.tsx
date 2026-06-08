@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { getCompetition, getLeagueCompetitions } from "@/lib/supabaseHelpers";
+import { getCompetition, getLeagueCompetitions, getLeagueDefaultCompetition, getUserLeagues } from "@/lib/supabaseHelpers";
 
 type AppShellProps = {
   children: React.ReactNode;
@@ -34,6 +34,7 @@ export default function AppShell({
 
   const [competitionName, setCompetitionName] = useState<string>("");
   const [competitions, setCompetitions] = useState<CompetitionOption[]>([]);
+  const [leagues, setLeagues] = useState<{ id: string; name: string }[]>([]);
   const [signOutError, setSignOutError] = useState<string | null>(null);
 
   const router = useRouter();
@@ -89,6 +90,21 @@ export default function AppShell({
 
     loadCompetitions();
   }, [leagueId]);
+
+  useEffect(() => {
+    async function loadLeagues() {
+      const { data: sessionData } = await supabase.auth.getSession();
+      const userId = sessionData?.session?.user?.id;
+      if (!userId) return;
+
+      const result = await getUserLeagues(userId);
+      if (result?.leagues) {
+        setLeagues(result.leagues.map((l: any) => ({ id: l.id, name: l.name })));
+      }
+    }
+
+    loadLeagues();
+  }, []);
 
   function changeCompetition(nextCompetitionId: string) {
     if (!leagueId || !nextCompetitionId) return;
@@ -185,23 +201,89 @@ export default function AppShell({
               </Link>
             </div>
 
-            {competitions.length > 0 ? (
-              <select
-                value={competitionId ?? ""}
-                onChange={(event) => changeCompetition(event.target.value)}
-                className="cursor-pointer appearance-none rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600 outline-none ring-0 transition hover:bg-slate-200"
-              >
-                {competitions.map((competition) => (
-                  <option key={competition.id} value={competition.id}>
-                    {competition.name}
-                  </option>
-                ))}
-              </select>
-            ) : competitionName ? (
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600">
-                {competitionName}
-              </span>
-            ) : null}
+            <div className="flex items-center gap-2">
+              {leagues.length > 0 ? (
+                <select
+                  value={leagueId ?? ""}
+                  onChange={async (event) => {
+                    const next = event.target.value;
+                    if (!next) return;
+
+                    // Determine a competition to navigate to for the new league:
+                    // Prefer league default, otherwise fall back to first league competition.
+                    let nextCompetitionId: string | null = null;
+
+                    try {
+                      const defaultComp = await getLeagueDefaultCompetition(next);
+                      if (defaultComp) {
+                        nextCompetitionId = defaultComp;
+                      } else {
+                        const comps = await getLeagueCompetitions(next);
+                        if (comps && comps.length > 0) nextCompetitionId = comps[0].id;
+                      }
+                    } catch (e) {
+                      // ignore and fallback to simple league path
+                    }
+
+                    // preserve current subpath when switching leagues, but replace competition with the chosen one
+                    if (typeof window !== "undefined" && leagueId) {
+                      const currentPath = window.location.pathname;
+                      const fromWithComp = `/league/${leagueId}/competition/${competitionId}`;
+                      const fromLeague = `/league/${leagueId}`;
+
+                      if (currentPath.includes(fromWithComp) && nextCompetitionId) {
+                        const nextPath = currentPath.replace(fromWithComp, `/league/${next}/competition/${nextCompetitionId}`);
+                        router.push(nextPath);
+                        return;
+                      }
+
+                      if (currentPath.includes(fromLeague)) {
+                        if (nextCompetitionId) {
+                          const nextPath = currentPath.replace(fromLeague, `/league/${next}/competition/${nextCompetitionId}`);
+                          router.push(nextPath);
+                        } else {
+                          const nextPath = currentPath.replace(fromLeague, `/league/${next}`);
+                          router.push(nextPath);
+                        }
+                        return;
+                      }
+                    }
+
+                    // Fallback: navigate to league (with competition if found)
+                    if (nextCompetitionId) {
+                      router.push(`/league/${next}/competition/${nextCompetitionId}`);
+                    } else {
+                      router.push(`/league/${next}`);
+                    }
+                  }}
+                  className="cursor-pointer appearance-none rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600 outline-none ring-0 transition hover:bg-slate-200"
+                >
+                  {leagues.map((league) => (
+                    <option key={league.id} value={league.id}>
+                      {league.name}
+                    </option>
+                  ))}
+                </select>
+              ) : null}
+
+              {competitions.length > 0 ? (
+                <select
+                  value={competitionId ?? ""}
+                  onChange={(event) => changeCompetition(event.target.value)}
+                  className="cursor-pointer appearance-none rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600 outline-none ring-0 transition hover:bg-slate-200"
+                >
+                  {competitions.map((competition) => (
+                    <option key={competition.id} value={competition.id}>
+                      {competition.name}
+                    </option>
+                  ))}
+                </select>
+              ) : competitionName ? (
+                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600">
+                  {competitionName}
+                </span>
+              ) : null}
+            </div>
           </div>
         ) : leagueId ? (
           <div className="border-t border-slate-200 bg-slate-50 py-3">

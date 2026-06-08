@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { acceptLeagueInvite, getLeagueInvite } from "@/lib/supabaseHelpers";
+import { acceptLeagueInvite, getLeagueInvite, getLeagueDefaultCompetition, getLeagueCompetitions } from "@/lib/supabaseHelpers";
 
 export default function InvitePage() {
   const params = useParams();
@@ -16,6 +16,7 @@ export default function InvitePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [leagueId, setLeagueId] = useState<string | null>(null);
+  const [leagueName, setLeagueName] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadInvite() {
@@ -33,9 +34,49 @@ export default function InvitePage() {
     loadInvite();
   }, [token]);
 
+  useEffect(() => {
+    async function loadLeagueName() {
+      if (!leagueId) return;
+      try {
+        const { data, error } = await supabase
+          .from("leagues")
+          .select("name")
+          .eq("id", leagueId)
+          .maybeSingle();
+
+        if (!error && data?.name) setLeagueName(data.name);
+      } catch (e) {
+        console.error("loadLeagueName error", e);
+      }
+    }
+
+    loadLeagueName();
+  }, [leagueId]);
+
   async function joinLeague(userId: string) {
     if (!leagueId) return;
     await acceptLeagueInvite(userId, leagueId);
+  }
+
+  async function redirectToLeagueCompetition(nextLeagueId: string) {
+    try {
+      // try default competition first
+      let competitionId = await getLeagueDefaultCompetition(nextLeagueId);
+
+      if (!competitionId) {
+        const comps = await getLeagueCompetitions(nextLeagueId);
+        competitionId = comps && comps.length > 0 ? comps[0].id : null;
+      }
+
+      if (competitionId) {
+        router.push(`/league/${nextLeagueId}/competition/${competitionId}`);
+      } else {
+        router.push("/leagues");
+      }
+    } catch (e) {
+      console.error("redirectToLeagueCompetition error", e);
+      router.push("/leagues");
+    }
   }
 
   async function handleLogin() {
@@ -50,7 +91,8 @@ export default function InvitePage() {
       setMessage(error.message);
     } else if (data.user) {
       await joinLeague(data.user.id);
-      router.push("/leagues");
+      if (leagueId) await redirectToLeagueCompetition(leagueId);
+      else router.push("/leagues");
     }
     setLoading(false);
   }
@@ -77,7 +119,8 @@ export default function InvitePage() {
         is_admin: false,
       });
       await joinLeague(userId);
-      router.push("/leagues");
+      if (leagueId) await redirectToLeagueCompetition(leagueId);
+      else router.push("/leagues");
     } else {
       setMessage("Registrace proběhla, přihlaste se prosím znovu.");
     }
@@ -86,73 +129,9 @@ export default function InvitePage() {
 
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6">
-      <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
+      <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl text-center">
         <h1 className="text-3xl font-semibold text-slate-900">Přijetí pozvánky do ligy</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Tato stránka slouží k přihlášení nebo registraci přes pozvánku.
-        </p>
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          Token: <strong>{token}</strong>
-          <br /> Liga: <strong>{leagueId ?? "Načítám..."}</strong>
-        </div>
-
-        <div className="mt-8 flex gap-2">
-          <button
-            onClick={() => setMode("login")}
-            className={`rounded-2xl px-4 py-2 text-sm transition ${mode === "login" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
-          >
-            Přihlásit se
-          </button>
-          <button
-            onClick={() => setMode("register")}
-            className={`rounded-2xl px-4 py-2 text-sm transition ${mode === "register" ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-700"}`}
-          >
-            Registrace nového uživatele
-          </button>
-        </div>
-
-        <div className="mt-6 space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">E-mail</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700">Heslo</span>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900"
-            />
-          </label>
-
-          {mode === "register" && (
-            <label className="block">
-              <span className="text-sm font-medium text-slate-700">Přezdívka</span>
-              <input
-                value={displayName}
-                onChange={(e) => setDisplayName(e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-slate-300 px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900"
-              />
-            </label>
-          )}
-        </div>
-
-        {message && <div className="mt-4 rounded-2xl bg-slate-100 px-4 py-3 text-sm text-slate-800">{message}</div>}
-
-        <button
-          onClick={mode === "login" ? handleLogin : handleRegister}
-          disabled={loading || !email || !password}
-          className="mt-6 w-full rounded-2xl bg-slate-900 px-4 py-3 text-white transition hover:bg-slate-800 disabled:cursor-not-allowed disabled:bg-slate-500"
-        >
-          {loading ? "Probíhá…" : mode === "login" ? "Přihlásit se" : "Registrovat"}
-        </button>
+        <h2 className="mt-4 text-xl font-medium text-slate-700">{leagueName ?? (leagueId ? "Načítám název ligy..." : "Načítám...")}</h2>
       </div>
     </div>
   );
