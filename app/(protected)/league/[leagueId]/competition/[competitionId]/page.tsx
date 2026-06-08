@@ -224,11 +224,7 @@ if (realTop3) {
             Pořadí
           </h2>
 
-          <p className="mt-2 text-sm text-slate-600">
-            {competition
-              ? `Aktuální pořadí pro soutěž ${competition.name}`
-              : "Pořadí se načte zde"}
-          </p>
+          {/* subtitle removed per design: keep only main heading */}
 
           {loading ? (
             <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
@@ -243,36 +239,27 @@ if (realTop3) {
               Pořadí se načte zde
             </div>
           ) : (
-            <div className="mt-6 overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                <thead className="bg-slate-50 text-slate-700">
-                  <tr>
-                    <th className="px-4 py-3">#</th>
-                    <th className="px-4 py-3">Hráč</th>
-                    <th className="px-4 py-3">Body</th>
-                    <th className="px-4 py-3">Přesně</th>
-                  </tr>
-                </thead>
+            <div className="mt-6">
+              <ul className="space-y-2">
+                {leaderboard.map((row, index) => (
+                  <li
+                    key={row.userId}
+                    className="rounded-lg border border-slate-100 bg-white px-4 py-3"
+                  >
+                    <div className="grid grid-cols-[auto_minmax(100px,130px)_auto_auto_1fr] items-center gap-x-1 gap-y-0 w-full">
+                      <div className="text-slate-900 font-semibold pr-2">{index + 1}.</div>
 
-                <tbody className="divide-y divide-slate-200 bg-white">
-                  {leaderboard.map((row, index) => (
-                    <tr key={row.userId}>
-                      <td className="px-4 py-4 font-semibold text-slate-900">
-                        {index + 1}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {row.display_name}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {row.points}
-                      </td>
-                      <td className="px-4 py-4 text-slate-700">
-                        {row.exact}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+                      <div className="text-slate-700 font-medium truncate">{row.display_name}</div>
+
+                      <div className="text-right w-[4ch]"><div className="font-bold text-slate-900">{row.points}</div></div>
+
+                      <div className="text-right w-[4ch] -ml-1"><div className="text-xs font-bold text-slate-900">({row.exact})</div></div>
+
+                      <div />
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </section>

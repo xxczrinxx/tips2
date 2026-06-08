@@ -21,18 +21,19 @@ export default function DebugPredictSample() {
         <div className="space-y-4">
           {sampleMatches.map((match) => (
             <div key={match.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 outline outline-0" data-debug>
-              <div className="grid grid-cols-1 sm:grid-cols-[30px_300px_80px] items-start sm:items-center justify-start gap-x-0 gap-y-1 outline outline-0">
-                <div className="w-[30px] text-sm text-slate-500 justify-self-center">{formatMatchTime(match.kickoff)}</div>
+              <div className="grid grid-cols-1 sm:grid-cols-[50px_300px_80px] items-center justify-start gap-y-2 sm:gap-y-0 outline outline-0">
+                <div className="w-full sm:w-[50px] text-sm text-slate-500 text-center sm:justify-self-center">{formatMatchTime(match.kickoff)}</div>
 
-                <div className="flex items-center justify-start gap-1 sm:contents">
-                  <div className="grid w-[300px] grid-cols-[140px_20px_140px] items-center gap-1">
+                <div className="grid grid-cols-1 gap-y-2 sm:contents">
+                  <div className="grid w-full sm:w-[300px] grid-cols-[minmax(0,1fr)_20px_minmax(0,1fr)] sm:grid-cols-[140px_20px_140px] items-center gap-1">
                     <div className="text-right text-slate-900 font-semibold">{match.home}</div>
                     <div className="text-center text-slate-500">:</div>
                     <div className="text-left text-slate-900 font-semibold">{match.away}</div>
                   </div>
 
-                  <div className="flex w-[80px] items-center justify-start gap-1">
+                  <div className="flex w-full sm:w-[80px] items-center justify-center sm:justify-start gap-1">
                     <div className="w-8 h-8 rounded-xl border border-slate-300 bg-white flex items-center justify-center">D</div>
+                    <div className="text-slate-500">:</div>
                     <div className="w-8 h-8 rounded-xl border border-slate-300 bg-white flex items-center justify-center">H</div>
                   </div>
                 </div>

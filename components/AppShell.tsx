@@ -92,6 +92,17 @@ export default function AppShell({
 
   function changeCompetition(nextCompetitionId: string) {
     if (!leagueId || !nextCompetitionId) return;
+    // Preserve current subpath (e.g. /grid or /predict) when switching competitions
+    if (typeof window !== "undefined" && competitionId) {
+      const currentPath = window.location.pathname;
+      const from = `/league/${leagueId}/competition/${competitionId}`;
+
+      if (currentPath.includes(from)) {
+        const nextPath = currentPath.replace(from, `/league/${leagueId}/competition/${nextCompetitionId}`);
+        router.push(nextPath);
+        return;
+      }
+    }
 
     router.push(`/league/${leagueId}/competition/${nextCompetitionId}`);
   }
@@ -133,7 +144,7 @@ export default function AppShell({
 
           <div className="flex items-center gap-3 text-sm text-slate-600">
             {profile?.display_name ? (
-              <span>Jste: {profile.display_name}</span>
+              <span className="font-bold text-slate-800">{profile.display_name}</span>
             ) : (
               <span>Načítám profil...</span>
             )}
