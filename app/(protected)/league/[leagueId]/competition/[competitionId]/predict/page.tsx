@@ -387,27 +387,27 @@ for (const match of matches) {
                                 debugLayout ? "outline outline-2 outline-red-200" : ""
                               }`}>
                               <div
-                                className={`grid grid-cols-[60px_300px_80px] items-center justify-start gap-x-2 gap-y-1 ${
+                                className={`grid grid-cols-1 sm:grid-cols-[30px_300px_80px] items-start sm:items-center justify-start gap-x-0 gap-y-1 ${
                                   debugLayout ? "outline outline-1 outline-yellow-200" : ""
                                 }`}
                               >
-                                <div className="w-[60px] text-sm text-slate-500 justify-self-center">
+                                <div className="w-[30px] text-sm text-slate-500 justify-self-center">
                                   {formatMatchTime(match.kickoff_at)}
                                 </div>
 
-                                <div className="grid w-[300px] grid-cols-[140px_20px_140px] items-center gap-1">
-                                  <div className="text-right text-slate-900 font-semibold" title={match.homeTeamName}>
-                                    {match.homeTeamName}
+                                <div className="flex items-center justify-start gap-1 sm:contents">
+                                  <div className="grid w-[300px] grid-cols-[140px_20px_140px] items-center gap-1">
+                                    <div className="text-right text-slate-900 font-semibold" title={match.homeTeamName}>
+                                      {match.homeTeamName}
+                                    </div>
+
+                                    <div className="text-center text-slate-500">:</div>
+
+                                    <div className="text-left text-slate-900 font-semibold" title={match.awayTeamName}>
+                                      {match.awayTeamName}
+                                    </div>
                                   </div>
 
-                                  <div className="text-center text-slate-500">:</div>
-
-                                  <div className="text-left text-slate-900 font-semibold" title={match.awayTeamName}>
-                                    {match.awayTeamName}
-                                  </div>
-                                </div>
-
-                                <div className="flex w-[80px] items-center justify-start gap-1">
                                   <div className="flex w-[80px] items-center justify-start gap-1">
                                     <input
                                       type="text"
