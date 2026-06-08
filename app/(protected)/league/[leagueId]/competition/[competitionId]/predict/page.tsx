@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
 import { supabase } from "@/lib/supabaseClient";
 import {
@@ -48,6 +48,8 @@ export default function PredictPage() {
   const [status, setStatus] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
+  const searchParams = useSearchParams();
+  const debugLayout = searchParams?.get?.("debugLayout") === "1";
 
   useEffect(() => {
     async function loadData() {
@@ -379,57 +381,65 @@ for (const match of matches) {
                           <h4 className="text-sm font-semibold text-slate-700">{matchDate}</h4>
 
                           {dateMatches.map((match) => (
-                            <div key={match.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2">
-                              <div className="flex flex-col gap-1">
-                                <div className="order-first md:order-none md:inline-block md:w-20 text-sm text-slate-500 md:mr-1">
+                            <div
+                              key={match.id}
+                              className={`rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2 min-w-0 ${
+                                debugLayout ? "outline outline-2 outline-red-200" : ""
+                              }`}>
+                              <div
+                                className={`grid grid-cols-[60px_300px_80px] items-center justify-start gap-x-2 gap-y-1 ${
+                                  debugLayout ? "outline outline-1 outline-yellow-200" : ""
+                                }`}
+                              >
+                                <div className="w-[60px] text-sm text-slate-500 justify-self-center">
                                   {formatMatchTime(match.kickoff_at)}
                                 </div>
 
-                                <div className="md:inline-grid md:grid-cols-[140px_12px_140px_64px] md:items-center md:gap-1 min-w-0">
-                                  <div className="pr-1 text-right font-semibold text-slate-900 truncate min-w-0" title={match.homeTeamName}>
+                                <div className="grid w-[300px] grid-cols-[140px_20px_140px] items-center gap-1">
+                                  <div className="text-right text-slate-900 font-semibold" title={match.homeTeamName}>
                                     {match.homeTeamName}
                                   </div>
 
-                                  <div className="flex items-center justify-center text-slate-500">:</div>
+                                  <div className="text-center text-slate-500">:</div>
 
-                                  <div className="pl-1 text-left font-semibold text-slate-900 truncate min-w-0" title={match.awayTeamName}>
+                                  <div className="text-left text-slate-900 font-semibold" title={match.awayTeamName}>
                                     {match.awayTeamName}
                                   </div>
+                                </div>
 
-                                  <div className="flex items-center justify-end md:justify-end">
-                                    <div className="grid grid-cols-2 gap-1">
-                                      <input
-                                        type="text"
-                                        inputMode="numeric"
-                                        maxLength={2}
-                                        placeholder="D"
-                                        value={tips[match.id]?.home ?? ""}
-                                        onChange={(e) =>
-                                          updateTip(
-                                            match.id,
-                                            "home",
-                                            e.target.value.replace(/\D/g, "").slice(0, 2)
-                                          )
-                                        }
-                                        className="w-8 rounded-xl border border-slate-300 bg-white px-1 py-1 text-center text-slate-900 text-sm outline-none"
-                                      />
+                                <div className="flex w-[80px] items-center justify-start gap-1">
+                                  <div className="flex w-[80px] items-center justify-start gap-1">
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      maxLength={2}
+                                      placeholder="D"
+                                      value={tips[match.id]?.home ?? ""}
+                                      onChange={(e) =>
+                                        updateTip(
+                                          match.id,
+                                          "home",
+                                          e.target.value.replace(/\D/g, "").slice(0, 2)
+                                        )
+                                      }
+                                      className="w-8 rounded-xl border border-slate-300 bg-white px-1 py-1 text-center text-slate-900 text-sm outline-none"
+                                    />
 
-                                      <input
-                                        type="text"
-                                        inputMode="numeric"
-                                        maxLength={2}
-                                        placeholder="H"
-                                        value={tips[match.id]?.away ?? ""}
-                                        onChange={(e) =>
-                                          updateTip(
-                                            match.id,
-                                            "away",
-                                            e.target.value.replace(/\D/g, "").slice(0, 2)
-                                          )
-                                        }
-                                        className="w-8 rounded-xl border border-slate-300 bg-white px-1 py-1 text-center text-slate-900 text-sm outline-none"
-                                      />
-                                    </div>
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      maxLength={2}
+                                      placeholder="H"
+                                      value={tips[match.id]?.away ?? ""}
+                                      onChange={(e) =>
+                                        updateTip(
+                                          match.id,
+                                          "away",
+                                          e.target.value.replace(/\D/g, "").slice(0, 2)
+                                        )
+                                      }
+                                      className="w-8 rounded-xl border border-slate-300 bg-white px-1 py-1 text-center text-slate-900 text-sm outline-none"
+                                    />
                                   </div>
                                 </div>
                               </div>
