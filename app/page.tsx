@@ -75,11 +75,20 @@ export default function HomePage() {
         return;
       }
 
+      // Prefer league default competition if set and assigned
+      try {
+        const defaultCompetitionId = await (await import("@/lib/supabaseHelpers")).getLeagueDefaultCompetition(firstLeague.id);
+        if (defaultCompetitionId && competitions.some((c) => c.id === defaultCompetitionId)) {
+          router.replace(`/league/${firstLeague.id}/competition/${defaultCompetitionId}`);
+          return;
+        }
+      } catch (e) {
+        console.error("error checking default competition", e);
+      }
+
       const firstCompetition = competitions[0];
 
-      router.replace(
-        `/league/${firstLeague.id}/competition/${firstCompetition.id}`
-      );
+      router.replace(`/league/${firstLeague.id}/competition/${firstCompetition.id}`);
     }
 
     openFirstCompetition(currentUserId);

@@ -27,7 +27,8 @@ export default function InvitesPage() {
       return;
     }
 
-    setLink(`${window.location.origin}/invite/${token}`);
+    const origin = (process.env.NEXT_PUBLIC_APP_URL as string) || (typeof window !== "undefined" ? window.location.origin : "");
+    setLink(origin ? `${origin}/invite/${token}` : token);
     setStatus("Pozvánka byla vytvořena.");
   }
 

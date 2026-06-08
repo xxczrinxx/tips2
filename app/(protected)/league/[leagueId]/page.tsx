@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import AppShell from "@/components/AppShell";
-import { Competition, getLeagueCompetitions } from "@/lib/supabaseHelpers";
+import { Competition, getLeagueCompetitions, getLeagueDefaultCompetition } from "@/lib/supabaseHelpers";
 
 export default function LeaguePage() {
   const params = useParams();
   const leagueId = Array.isArray(params?.leagueId) ? params.leagueId[0] : params?.leagueId ?? "0";
+  const router = useRouter();
   const [competitions, setCompetitions] = useState<Competition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -22,6 +23,19 @@ export default function LeaguePage() {
       }
       const data = await getLeagueCompetitions(leagueId);
       setCompetitions(data);
+
+      // Redirect to default competition if exists, otherwise fallback to first assigned
+      const defaultCompetitionId = await getLeagueDefaultCompetition(leagueId);
+      if (defaultCompetitionId) {
+        router.push(`/league/${leagueId}/competition/${defaultCompetitionId}`);
+        return;
+      }
+
+      if (data && data.length > 0) {
+        router.push(`/league/${leagueId}/competition/${data[0].id}`);
+        return;
+      }
+
       setLoading(false);
     }
 

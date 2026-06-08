@@ -1,6 +1,6 @@
 import { supabase } from "@/lib/supabaseClient";
 
-export type League = { id: string; name: string };
+export type League = { id: string; name: string; default_competition_id?: string | null };
 export type Competition = { id: string; name: string; sport: string; tip_top3?: boolean };
 export type MatchRow = {
   id: string;
@@ -84,6 +84,55 @@ export async function getLeagueCompetitions(leagueId: string) {
     return [] as Competition[];
   }
   return data as Competition[];
+}
+
+export async function getAllCompetitions() {
+  const { data, error } = await supabase.from("competitions").select("id, name, sport, tip_top3");
+  if (error) {
+    console.error("getAllCompetitions error", error);
+    return [] as Competition[];
+  }
+  return data as Competition[];
+}
+
+export async function getLeagueDefaultCompetition(leagueId: string) {
+  const { data, error } = await supabase.from("leagues").select("default_competition_id").eq("id", leagueId).maybeSingle();
+  if (error) {
+    console.error("getLeagueDefaultCompetition error", error);
+    return null;
+  }
+  return data?.default_competition_id ?? null;
+}
+
+export async function setLeagueDefaultCompetition(leagueId: string, competitionId: string | null) {
+  const { error } = await supabase.from("leagues").update({ default_competition_id: competitionId }).eq("id", leagueId);
+  if (error) {
+    console.error("setLeagueDefaultCompetition error", error);
+    return false;
+  }
+  return true;
+}
+
+export async function assignCompetitionToLeague(leagueId: string, competitionId: string) {
+  const { error } = await supabase.from("league_competitions").insert({ league_id: leagueId, competition_id: competitionId });
+  if (error) {
+    console.error("assignCompetitionToLeague error", error);
+    return false;
+  }
+  return true;
+}
+
+export async function removeCompetitionFromLeague(leagueId: string, competitionId: string) {
+  const { error } = await supabase
+    .from("league_competitions")
+    .delete()
+    .eq("league_id", leagueId)
+    .eq("competition_id", competitionId);
+  if (error) {
+    console.error("removeCompetitionFromLeague error", error);
+    return false;
+  }
+  return true;
 }
 
 export async function getCompetition(competitionId: string) {
@@ -226,6 +275,27 @@ export async function createLeagueInvite(leagueId: string) {
     console.error("createLeagueInvite auth error", authError);
     return null;
   }
+  
+  // Reuse existing active invite if present (not accepted and not expired)
+  try {
+    const { data: existing, error: existingError } = await supabase
+      .from("league_invites")
+      .select("token, expires_at, accepted_by")
+      .eq("league_id", leagueId)
+      .is("accepted_by", null)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (!existingError && existing && existing.token) {
+      // If there is an expires_at column, check expiration
+      if (!existing.expires_at || new Date(existing.expires_at) > new Date()) {
+        return existing.token as string;
+      }
+    }
+  } catch (e) {
+    console.error("createLeagueInvite check existing error", e);
+  }
 
   const { data, error } = await supabase
     .from("league_invites")
@@ -266,9 +336,9 @@ export async function createCompetition(
 
   const { data: league, error: leagueError } = await supabase
     .from("leagues")
-    .select("id")
+    .select("id, default_competition_id")
     .eq("id", leagueId)
-    .single();
+    .maybeSingle();
 
   if (leagueError || !league) {
     console.error("createCompetition league not found", leagueError);
@@ -353,6 +423,16 @@ console.log(
   if (linkError) {
     console.error("createCompetition link error", linkError);
     return null;
+  }
+
+  // If league has no default competition yet, set the newly created one as default
+  try {
+    const currentDefault = (league as any)?.default_competition_id ?? null;
+    if (!currentDefault) {
+      await setLeagueDefaultCompetition(leagueId, competitionId);
+    }
+  } catch (e) {
+    console.error("createCompetition set default error", e);
   }
 
   return competitionId;

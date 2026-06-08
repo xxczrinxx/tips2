@@ -5,13 +5,20 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { getCompetition } from "@/lib/supabaseHelpers";
+import { getCompetition, getLeagueCompetitions } from "@/lib/supabaseHelpers";
 
 type AppShellProps = {
   children: React.ReactNode;
   leagueId?: string;
   competitionId?: string;
   activeTab?: "dashboard" | "predict" | "grid";
+};
+
+type CompetitionOption = {
+  id: string;
+  name: string;
+  sport: string;
+  tip_top3: boolean;
 };
 
 export default function AppShell({
@@ -26,6 +33,7 @@ export default function AppShell({
   } | null>(null);
 
   const [competitionName, setCompetitionName] = useState<string>("");
+  const [competitions, setCompetitions] = useState<CompetitionOption[]>([]);
   const [signOutError, setSignOutError] = useState<string | null>(null);
 
   const router = useRouter();
@@ -68,6 +76,26 @@ export default function AppShell({
     loadCompetition();
   }, [competitionId]);
 
+  useEffect(() => {
+    async function loadCompetitions() {
+      if (!leagueId) {
+        setCompetitions([]);
+        return;
+      }
+
+      const data = await getLeagueCompetitions(leagueId);
+      setCompetitions(data as CompetitionOption[]);
+    }
+
+    loadCompetitions();
+  }, [leagueId]);
+
+  function changeCompetition(nextCompetitionId: string) {
+    if (!leagueId || !nextCompetitionId) return;
+
+    router.push(`/league/${leagueId}/competition/${nextCompetitionId}`);
+  }
+
   async function signOut() {
     setSignOutError(null);
 
@@ -101,12 +129,6 @@ export default function AppShell({
                 Tipovačka
               </span>
             </Link>
-
-            {competitionName && (
-              <span className="text-sm text-slate-500">
-                {competitionName}
-              </span>
-            )}
           </div>
 
           <div className="flex items-center gap-3 text-sm text-slate-600">
@@ -152,11 +174,23 @@ export default function AppShell({
               </Link>
             </div>
 
-            {competitionName && (
+            {competitions.length > 0 ? (
+              <select
+                value={competitionId ?? ""}
+                onChange={(event) => changeCompetition(event.target.value)}
+                className="cursor-pointer appearance-none rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600 outline-none ring-0 transition hover:bg-slate-200"
+              >
+                {competitions.map((competition) => (
+                  <option key={competition.id} value={competition.id}>
+                    {competition.name}
+                  </option>
+                ))}
+              </select>
+            ) : competitionName ? (
               <span className="rounded-full bg-slate-100 px-3 py-1 text-xs uppercase tracking-[0.12em] text-slate-600">
                 {competitionName}
               </span>
-            )}
+            ) : null}
           </div>
         ) : leagueId ? (
           <div className="border-t border-slate-200 bg-slate-50 py-3">
@@ -175,17 +209,17 @@ export default function AppShell({
           <div className="border-t border-slate-200 bg-slate-50 py-3">
             <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-2 px-4 sm:px-6">
               <Link
+                href={`/league/${leagueId}/admin/leagues`}
+                className="rounded-md bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
+              >
+                Admin lig
+              </Link>
+
+              <Link
                 href={`/league/${leagueId}/admin/new-competition`}
                 className="rounded-md bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
               >
                 Nový turnaj
-              </Link>
-
-              <Link
-                href={`/league/${leagueId}/admin/invites`}
-                className="rounded-md bg-white px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-100"
-              >
-                Pozvánka
               </Link>
 
               {competitionId && (

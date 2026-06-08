@@ -162,12 +162,38 @@ export default function PredictPage() {
   }, [competitionId]);
 
   const groupedMatches = useMemo(() => {
-    return matches.reduce<Record<string, MatchWithNames[]>>((acc, match) => {
-      const stage = match.stage || "Bez fáze";
-      acc[stage] = acc[stage] ? [...acc[stage], match] : [match];
-      return acc;
-    }, {});
+    return matches.reduce<Record<string, Record<string, MatchWithNames[]>>>(
+      (acc, match) => {
+        const stage = match.stage || "Bez fáze";
+        const matchDate = formatMatchDate(match.kickoff_at);
+
+        if (!acc[stage]) acc[stage] = {};
+
+        acc[stage][matchDate] = acc[stage][matchDate]
+          ? [...acc[stage][matchDate], match]
+          : [match];
+
+        return acc;
+      },
+      {}
+    );
   }, [matches]);
+
+  function formatMatchDate(kickoffAt: string | null) {
+    if (!kickoffAt) return "Datum neznámé";
+    return new Date(kickoffAt).toLocaleDateString("cs-CZ", {
+      day: "2-digit",
+      month: "2-digit",
+    });
+  }
+
+  function formatMatchTime(kickoffAt: string | null) {
+    if (!kickoffAt) return "Čas neznámý";
+    return new Date(kickoffAt).toLocaleTimeString("cs-CZ", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
 
   function updateTip(matchId: string, side: "home" | "away", value: string) {
     setStatus(null);
@@ -347,49 +373,42 @@ for (const match of matches) {
                   <div key={stage} className="mt-8">
                     <h3 className="text-xl font-semibold text-slate-900">{stage}</h3>
 
-                    <div className="mt-4 space-y-3">
-                      {stageMatches.map((match) => (
-                        <div
-                          key={match.id}
-                          className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3"
-                        >
-                          <div className="grid gap-3 md:grid-cols-[150px_1fr_180px] md:items-center">
-                            <div className="text-sm text-slate-500">
-                              {match.kickoff_at
-                                ? new Date(match.kickoff_at).toLocaleString("cs-CZ", {
-                                    day: "2-digit",
-                                    month: "2-digit",
-                                    year: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })
-                                : "Datum neznámé"}
-                            </div>
+                    <div className="mt-4 space-y-6">
+                      {Object.entries(stageMatches).map(([matchDate, dateMatches]) => (
+                        <div key={matchDate} className="space-y-3">
+                          <h4 className="text-sm font-semibold text-slate-700">{matchDate}</h4>
 
-                            <div className="truncate text-base font-semibold text-slate-900">
-                              {match.homeTeamName} : {match.awayTeamName}
-                            </div>
+                          {dateMatches.map((match) => (
+                            <div key={match.id} className="w-fit rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                              <div className="grid grid-cols-[36px_1fr_140px] items-center gap-3">
+                                <div className="text-sm text-slate-500">{formatMatchTime(match.kickoff_at)}</div>
 
-                            <div className="grid grid-cols-2 gap-2">
-                              <input
-                                type="number"
-                                min="0"
-                                placeholder="D"
-                                value={tips[match.id]?.home ?? ""}
-                                onChange={(e) => updateTip(match.id, "home", e.target.value)}
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-slate-900 outline-none"
-                              />
+                                <div className="truncate text-base font-semibold text-slate-900">
+                                  {match.homeTeamName} : {match.awayTeamName}
+                                </div>
 
-                              <input
-                                type="number"
-                                min="0"
-                                placeholder="H"
-                                value={tips[match.id]?.away ?? ""}
-                                onChange={(e) => updateTip(match.id, "away", e.target.value)}
-                                className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-slate-900 outline-none"
-                              />
+                                <div className="grid grid-cols-2 gap-2">
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="D"
+                                    value={tips[match.id]?.home ?? ""}
+                                    onChange={(e) => updateTip(match.id, "home", e.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-slate-900 outline-none"
+                                  />
+
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    placeholder="H"
+                                    value={tips[match.id]?.away ?? ""}
+                                    onChange={(e) => updateTip(match.id, "away", e.target.value)}
+                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-slate-900 outline-none"
+                                  />
+                                </div>
+                              </div>
                             </div>
-                          </div>
+                          ))}
                         </div>
                       ))}
                     </div>

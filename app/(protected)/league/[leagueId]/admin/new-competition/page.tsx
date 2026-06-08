@@ -113,12 +113,17 @@ if (competitionTeamsError) {
         home_team_id: allMap[row.home_team_name] ?? null,
         away_team_id: allMap[row.away_team_name] ?? null,
       }));
+      console.log("IMPORT matchesToInsert:", matchesToInsert);
       const { error: matchesError } = await supabase
   .from("matches")
   .insert(matchesToInsert);
 
 if (matchesError) {
-  console.error("matchesError", matchesError);
+  console.error("matchesError message", matchesError.message);
+  console.error("matchesError details", matchesError.details);
+  console.error("matchesError hint", matchesError.hint);
+  console.error("matchesError code", matchesError.code);
+  return;
 }
     }
 
