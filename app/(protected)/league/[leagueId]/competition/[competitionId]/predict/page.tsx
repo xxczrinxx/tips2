@@ -379,32 +379,62 @@ for (const match of matches) {
                           <h4 className="text-sm font-semibold text-slate-700">{matchDate}</h4>
 
                           {dateMatches.map((match) => (
-                            <div key={match.id} className="w-fit rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
-                              <div className="grid grid-cols-[36px_1fr_140px] items-center gap-3">
-                                <div className="text-sm text-slate-500">{formatMatchTime(match.kickoff_at)}</div>
-
-                                <div className="truncate text-base font-semibold text-slate-900">
-                                  {match.homeTeamName} : {match.awayTeamName}
+                            <div key={match.id} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                              <div className="flex flex-col md:flex-row md:items-center md:gap-4">
+                                <div className="text-sm text-slate-500 md:w-24 md:flex-shrink-0">
+                                  {formatMatchTime(match.kickoff_at)}
                                 </div>
 
-                                <div className="grid grid-cols-2 gap-2">
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    placeholder="D"
-                                    value={tips[match.id]?.home ?? ""}
-                                    onChange={(e) => updateTip(match.id, "home", e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-slate-900 outline-none"
-                                  />
+                                <div className="flex items-center gap-4 md:flex-1">
+                                  <div
+                                    className="w-[160px] pr-2 text-right font-semibold text-slate-900 truncate"
+                                    title={match.homeTeamName}
+                                  >
+                                    {match.homeTeamName}
+                                  </div>
 
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    placeholder="H"
-                                    value={tips[match.id]?.away ?? ""}
-                                    onChange={(e) => updateTip(match.id, "away", e.target.value)}
-                                    className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-center text-slate-900 outline-none"
-                                  />
+                                  <div
+                                    className="w-[160px] pl-2 text-left font-semibold text-slate-900 truncate"
+                                    title={match.awayTeamName}
+                                  >
+                                    {match.awayTeamName}
+                                  </div>
+                                </div>
+
+                                <div className="mt-2 md:mt-0 md:ml-4 flex items-center">
+                                  <div className="grid grid-cols-2 gap-2">
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      maxLength={2}
+                                      placeholder="D"
+                                      value={tips[match.id]?.home ?? ""}
+                                      onChange={(e) =>
+                                        updateTip(
+                                          match.id,
+                                          "home",
+                                          e.target.value.replace(/\D/g, "").slice(0, 2)
+                                        )
+                                      }
+                                      className="w-10 rounded-xl border border-slate-300 bg-white px-2 py-1 text-center text-slate-900 outline-none"
+                                    />
+
+                                    <input
+                                      type="text"
+                                      inputMode="numeric"
+                                      maxLength={2}
+                                      placeholder="H"
+                                      value={tips[match.id]?.away ?? ""}
+                                      onChange={(e) =>
+                                        updateTip(
+                                          match.id,
+                                          "away",
+                                          e.target.value.replace(/\D/g, "").slice(0, 2)
+                                        )
+                                      }
+                                      className="w-10 rounded-xl border border-slate-300 bg-white px-2 py-1 text-center text-slate-900 outline-none"
+                                    />
+                                  </div>
                                 </div>
                               </div>
                             </div>
