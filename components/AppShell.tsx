@@ -97,6 +97,23 @@ export default function AppShell({
       const userId = sessionData?.session?.user?.id;
       if (!userId) return;
 
+      // If user is admin, load all leagues; otherwise load only leagues where user is member
+      try {
+        const { data: profileData, error: profileError } = await supabase
+          .from("profiles")
+          .select("is_admin")
+          .eq("id", userId)
+          .maybeSingle();
+
+        if (!profileError && profileData?.is_admin) {
+          const { data: allLeagues } = await supabase.from("leagues").select("id, name");
+          setLeagues((allLeagues ?? []).map((l: any) => ({ id: l.id, name: l.name })));
+          return;
+        }
+      } catch (e) {
+        // fallback to user leagues
+      }
+
       const result = await getUserLeagues(userId);
       if (result?.leagues) {
         setLeagues(result.leagues.map((l: any) => ({ id: l.id, name: l.name })));
