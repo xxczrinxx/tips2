@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
-import { acceptLeagueInvite, getLeagueInvite } from "@/lib/supabaseHelpers";
+import {
+  acceptLeagueInvite,
+  getLeagueInvite,
+  getLeagueDefaultCompetition,
+  getLeagueCompetitions,
+} from "@/lib/supabaseHelpers";
 
 export default function InvitePage() {
   const params = useParams();
@@ -49,6 +54,29 @@ export default function InvitePage() {
     await acceptLeagueInvite(userId, leagueId);
   }
 
+  async function redirectToLeague(targetLeagueId?: string | null) {
+    const lid = targetLeagueId ?? leagueId;
+    if (!lid) {
+      router.push("/leagues");
+      return;
+    }
+    try {
+      const defaultComp = await getLeagueDefaultCompetition(lid);
+      if (defaultComp) {
+        router.push(`/league/${lid}/competition/${defaultComp}`);
+        return;
+      }
+      const comps = await getLeagueCompetitions(lid);
+      if (comps && comps.length > 0) {
+        router.push(`/league/${lid}/competition/${comps[0].id}`);
+        return;
+      }
+    } catch (err) {
+      console.error("redirectToLeague error", err);
+    }
+    router.push("/leagues");
+  }
+
   async function handleLogin() {
     setLoading(true);
     setMessage(null);
@@ -61,7 +89,7 @@ export default function InvitePage() {
       setMessage(error.message);
     } else if (data.user) {
       await joinLeague(data.user.id);
-      router.push("/leagues");
+      await redirectToLeague();
     }
     setLoading(false);
   }
@@ -88,7 +116,7 @@ export default function InvitePage() {
         is_admin: false,
       });
       await joinLeague(userId);
-      router.push("/leagues");
+      await redirectToLeague();
     } else {
       setMessage("Registrace proběhla, přihlaste se prosím znovu.");
     }
