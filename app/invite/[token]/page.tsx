@@ -99,7 +99,7 @@ export default function InvitePage() {
     <div className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6">
       <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
         <h1 className="text-3xl font-semibold text-slate-900">
-          Přijetí pozvánky do ligy{leagueName ? `${leagueName}` : ""}
+          Přijetí pozvánky do ligy{leagueName ? ` ${leagueName}` : ""}
         </h1>
 
         <div className="mt-8 flex gap-2">
