@@ -294,10 +294,50 @@ export default function UpcomingMatches({
       <div className="mt-4">
         {loading ? (
           <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700">Načítám zápasy...</div>
-        ) : matches.length === 0 ? (
-          <div />
         ) : (
-          Object.entries(groupedMatches).map(([stage, stageMatches]) => (
+          <>
+            {top3Enabled && (
+              <div className="rounded-3xl border border-slate-200 bg-slate-50 p-5 mb-4">
+                <h3 className="text-lg font-semibold text-slate-900">TOP 3</h3>
+
+                {teams.length === 0 ? (
+                  <p className="mt-4 text-sm text-red-700">Pro tuto soutěž nejsou načtené žádné týmy.</p>
+                ) : (
+                  <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                    {(["first", "second", "third"] as const).map((position, index) => (
+                      <label key={position} className="block">
+                        <span className="text-sm font-medium text-slate-700">{index + 1}. místo</span>
+
+                        <select
+                          value={podium[position]}
+                          onChange={(e) => {
+                            setStatus(null);
+                            setPodium((current) => ({
+                              ...current,
+                              [position]: e.target.value,
+                            }));
+                          }}
+                          className="mt-2 w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 outline-none transition focus:border-slate-900"
+                        >
+                          <option value="">Vyberte tým</option>
+
+                          {teams.map((team) => (
+                            <option key={team.id} value={team.id}>
+                              {team.name}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {matches.length === 0 ? (
+              <div />
+            ) : (
+              Object.entries(groupedMatches).map(([stage, stageMatches]) => (
             <div key={stage} className="mt-4">
               <h4 className="text-md font-semibold text-slate-900">{stage}</h4>
 
