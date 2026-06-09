@@ -16,6 +16,7 @@ export default function InvitePage() {
   const [message, setMessage] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [leagueId, setLeagueId] = useState<string | null>(null);
+  const [leagueName, setLeagueName] = useState<string | null>(null);
 
   useEffect(() => {
     async function loadInvite() {
@@ -29,6 +30,16 @@ export default function InvitePage() {
         return;
       }
       setLeagueId(invite.league_id);
+      try {
+        const { data: leagueData, error: leagueError } = await supabase
+          .from("leagues")
+          .select("name")
+          .eq("id", invite.league_id)
+          .single();
+        if (!leagueError && leagueData?.name) setLeagueName(leagueData.name);
+      } catch (err) {
+        console.error("fetch league name error", err);
+      }
     }
     loadInvite();
   }, [token]);
@@ -87,14 +98,9 @@ export default function InvitePage() {
   return (
     <div className="min-h-screen bg-slate-50 px-4 py-12 sm:px-6">
       <div className="mx-auto max-w-2xl rounded-3xl border border-slate-200 bg-white p-8 shadow-xl">
-        <h1 className="text-3xl font-semibold text-slate-900">Přijetí pozvánky do ligy</h1>
-        <p className="mt-2 text-sm text-slate-600">
-          Tato stránka slouží k přihlášení nebo registraci přes pozvánku.
-        </p>
-        <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700">
-          Token: <strong>{token}</strong>
-          <br /> Liga: <strong>{leagueId ?? "Načítám..."}</strong>
-        </div>
+        <h1 className="text-3xl font-semibold text-slate-900">
+          Přijetí pozvánky do ligy{leagueName ? ` — ${leagueName}` : ""}
+        </h1>
 
         <div className="mt-8 flex gap-2">
           <button
