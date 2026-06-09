@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import AppShell from "@/components/AppShell";
+import UpcomingMatches from "@/components/UpcomingMatches";
 import { supabase } from "@/lib/supabaseClient";
 import {
   Competition,
@@ -265,13 +266,8 @@ if (realTop3) {
         </section>
 
         <section className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm">
-          <h2 className="text-2xl font-semibold text-slate-900">
-            Dnešní zápasy
-          </h2>
-
-          <div className="mt-6 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700">
-            Dnešní zápasy k tipování se zobrazí zde
-          </div>
+          {/* UpcomingMatches component: shows matches for today and tomorrow with tipping UI */}
+          <UpcomingMatches leagueId={leagueId} competitionId={competitionId} />
         </section>
       </div>
     </AppShell>
